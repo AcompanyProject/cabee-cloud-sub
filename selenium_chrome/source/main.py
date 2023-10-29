@@ -1,6 +1,6 @@
 # 現在のサインと証券会社の建玉が一致しているか判定 -> 一致していなければサインに一致するよう操作する
-import os, random, json, time, re, csv, requests
-from datetime import datetime, timedelta
+import os, random, json, time, requests
+from datetime import datetime
 from calendar import Calendar
 import pytz
 from selenium import webdriver
@@ -52,7 +52,6 @@ driver.command_executor._commands["send_command"] = ('POST', '/session/$sessionI
 driver.execute("send_command", params)
 
 # グローバル変数
-WEB_HOOK_URL = "https://hooks.slack.com/services/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"
 USER_INFO_OPEN = open('./json/user_info.json', 'r')
 USER_INFO = json.load(USER_INFO_OPEN)
 REALTIME_DEPOSIT = 0
@@ -76,13 +75,7 @@ def trade_executor(request):
     print("ログイン完了")
 
     # 余力情報ページクリック
-    try:
-        WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.btn-menu-fut-op-power-info'))).click()
-    except:
-        requests.post(WEB_HOOK_URL, data = json.dumps({
-            'text': 'ログイン後に操作ができません。本エラーが連続する場合、松井証券のサイトで契約更新等のポップアップが出ていないか確認してください。',
-            'username': u'エラー', 'icon_emoji': u':fire:', 'link_names': 1,
-        }))
+    WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.btn-menu-fut-op-power-info'))).click()
     time.sleep(5)
 
     # 証拠金を見て建玉枚数取得
@@ -127,27 +120,15 @@ def trade_executor(request):
 
     if purpose == 'new_order':
         print('新規注文します')
-        requests.post(WEB_HOOK_URL, data = json.dumps({
-            'text': '新規注文します',
-            'username': u'エラー', 'icon_emoji': u':fire:', 'link_names': 1,
-        }))
         WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.btn-menu-fut-op-speed-order'))).click()
         time.sleep(5)
         operation_new_order(purpose, is_buy_sign)
     elif purpose == 'repayment_order':
         print('返済注文します')
-        requests.post(WEB_HOOK_URL, data = json.dumps({
-            'text': '返済注文します',
-            'username': u'エラー', 'icon_emoji': u':fire:', 'link_names': 1,
-        }))
         WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.btn-menu-fut-op-speed-order'))).click()
         operation_repayment_order(purpose, is_buy_sign)
     elif purpose == 'repayment_and_new_order':
         print('返済注文と新規注文をします')
-        requests.post(WEB_HOOK_URL, data = json.dumps({
-            'text': '返済注文と新規注文をします',
-            'username': u'エラー', 'icon_emoji': u':fire:', 'link_names': 1,
-        }))
         WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.btn-menu-fut-op-speed-order'))).click()
         operation_repayment_order(purpose, is_buy_sign)
         operation_new_order('new_order', is_buy_sign)
