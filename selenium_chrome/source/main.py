@@ -52,6 +52,7 @@ driver.command_executor._commands["send_command"] = ('POST', '/session/$sessionI
 driver.execute("send_command", params)
 
 # グローバル変数
+WEB_HOOK_URL = "https://hooks.slack.com/services/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"
 USER_INFO_OPEN = open('./json/user_info.json', 'r')
 USER_INFO = json.load(USER_INFO_OPEN)
 REALTIME_DEPOSIT = 0
@@ -75,7 +76,14 @@ def trade_executor(request):
     print("ログイン完了")
 
     # 余力情報ページクリック
-    WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.btn-menu-fut-op-power-info'))).click()
+    try:
+        WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.btn-menu-fut-op-power-info'))).click()
+    except:
+        requests.post(WEB_HOOK_URL, data = json.dumps({
+            'text': 'ログイン後に操作ができません。本エラーが連続する場合、松井証券のサイトで契約更新等のポップアップが出ていないか確認してください。',
+            'username': u'エラー', 'icon_emoji': u':fire:', 'link_names': 1,
+        }))
+
     time.sleep(5)
 
     # 証拠金を見て建玉枚数取得
@@ -118,20 +126,55 @@ def trade_executor(request):
         purpose = 'repayment_and_new_order'
         is_buy_sign = True
 
+    try_count = 2 # 返済注文時の限月プルダウンの試行回数
     if purpose == 'new_order':
-        print('新規注文します')
+        requests.post(WEB_HOOK_URL, data = json.dumps({
+            'text': '新規注文します',
+            'username': u'サイン', 'icon_emoji': u':cat:', 'link_names': 1,
+        }))
         WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.btn-menu-fut-op-speed-order'))).click()
         time.sleep(5)
         operation_new_order(purpose, is_buy_sign)
+        requests.post(WEB_HOOK_URL, data = json.dumps({
+            'text': '新規注文を完了しました',
+            'username': u'サイン', 'icon_emoji': u':cat:', 'link_names': 1,
+        }))
     elif purpose == 'repayment_order':
-        print('返済注文します')
+        requests.post(WEB_HOOK_URL, data = json.dumps({
+            'text': '返済注文します',
+            'username': u'サイン', 'icon_emoji': u':cat:', 'link_names': 1,
+        }))
         WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.btn-menu-fut-op-speed-order'))).click()
-        operation_repayment_order(purpose, is_buy_sign)
+        for i in range(try_count):
+            try:
+                operation_repayment_order(i+1) # 返済できるまでプルダウン（限月）の下キーを押す回数を増やして試行する
+                requests.post(WEB_HOOK_URL, data = json.dumps({
+                    'text': '返済注文を完了しました',
+                    'username': u'サイン', 'icon_emoji': u':cat:', 'link_names': 1,
+                }))
+            except:
+                continue
     elif purpose == 'repayment_and_new_order':
-        print('返済注文と新規注文をします')
+        requests.post(WEB_HOOK_URL, data = json.dumps({
+            'text': '返済注文と新規注文をします',
+            'username': u'サイン', 'icon_emoji': u':cat:', 'link_names': 1,
+        }))
         WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.btn-menu-fut-op-speed-order'))).click()
-        operation_repayment_order(purpose, is_buy_sign)
+        for i in range(try_count):
+            try:
+                driver.save_screenshot('repayment-start.png')
+                operation_repayment_order(i+1) # 返済できるまでプルダウン（限月）の下キーを押す回数を増やして試行する
+                requests.post(WEB_HOOK_URL, data = json.dumps({
+                    'text': '返済注文を完了しました',
+                    'username': u'サイン', 'icon_emoji': u':cat:', 'link_names': 1,
+                }))
+            except:
+                continue
         operation_new_order('new_order', is_buy_sign)
+        requests.post(WEB_HOOK_URL, data = json.dumps({
+            'text': '新規注文を完了しました',
+            'username': u'サイン', 'icon_emoji': u':cat:', 'link_names': 1,
+        }))
 
     return response(request)
 
@@ -205,12 +248,13 @@ def operation_new_order(purpose, is_buy_sign):
     common_operation_order(order_kind, order_kind2, 'new_order')
 
 # 返済注文
-def operation_repayment_order(purpose, is_buy_sign):
+def operation_repayment_order(try_count = 1):
     order_kind = ''
     order_kind2 = ''
 
-    operation_pulldown('speed_order')
+    operation_pulldown('speed_order', try_count)
     time.sleep(2)
+    driver.save_screenshot('repayment-after-pulldown.png')
     driver.find_element_by_class_name('dealing-type-refund-futop').click()
     time.sleep(2)
     driver.find_element_by_id('fut-op-speed-order-input-position-list-button').click()
@@ -227,15 +271,11 @@ def operation_repayment_order(purpose, is_buy_sign):
 
     driver.find_element_by_class_name('select-position-btn').click()
     time.sleep(2)
-    buttons = driver.find_elements_by_class_name('confirm-btn')
-    for btn in buttons:
-        try:
-            btn.click()
-            break
-        except Exception as e:
-            continue
 
+    buttons = driver.find_elements_by_class_name('confirm-btn')
+    buttons[len(buttons)-1].click()
     time.sleep(5)
+
     common_operation_order(order_kind, order_kind2, 'repayment_order')
 
 # 注文の共通操作
@@ -254,7 +294,7 @@ def common_operation_order(order_kind, order_kind2, operation):
     time.sleep(3)
 
 # プルダウン操作
-def operation_pulldown(page):
+def operation_pulldown(page, try_count = 1):
     # 先物取引の選択
     future_trade_element = ""
     time.sleep(5)
@@ -279,16 +319,17 @@ def operation_pulldown(page):
         contract_month_element = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID, 'del-month-select')))
 
     contract_month_element.click()
-    keydown_count = 1
-    if page == 'speed_order':
-        contract_month_list = contract_month_element.text.split("\n")
-        for i,month in enumerate(contract_month_list):
-            if '03月' in month or '06月' in month or '09月' in month or '12月' in month:
-                keydown_count += i
-                break
+    # keydown_count = 1
+    # if page == 'speed_order':
+    #     contract_month_list = contract_month_element.text.split("\n")
+    #     for i,month in enumerate(contract_month_list):
+    #         if '03月' in month or '06月' in month or '09月' in month or '12月' in month:
+    #             keydown_count += i
+    #             break
 
     driver_actions = ActionChains(driver)
-    for i in range(keydown_count):
+    # 建玉が見付かれるまでプルダウンの選択する回数を増やす（返済注文現在の操作）
+    for i in range(try_count):
         driver_actions.send_keys(Keys.DOWN)
     driver_actions.send_keys(Keys.ENTER)
     driver_actions.perform()
