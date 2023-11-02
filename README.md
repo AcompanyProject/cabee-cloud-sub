@@ -1,7 +1,7 @@
 # cabee-cloud-sub
 初期設定
 ```
-cd cabee-cloud/selenium_chrome/source
+cd cabee-cloud-sub/selenium_chrome/source
 unzip headless-chromium.zip
 ```
 
