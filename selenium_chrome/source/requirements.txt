@@ -1,1 +1,5 @@
+jpholiday
 pytz
+firebase_admin
+firestore
+load_dotenv
