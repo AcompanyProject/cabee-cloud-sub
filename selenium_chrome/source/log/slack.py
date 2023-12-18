@@ -1,7 +1,7 @@
-import requests
-import json
+import os, requests, json
+from dotenv import load_dotenv
 
-WEB_HOOK_URL = "https://hooks.slack.com/services/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"
+load_dotenv()
 
 def send_message(type, message):
     try:
@@ -17,11 +17,14 @@ def send_message(type, message):
             'error': 'エラー（要確認）'
         }
 
-        requests.post(WEB_HOOK_URL, data = json.dumps({
-            'username': user_name[type],
-            'text': message ,
-            'icon_emoji': (icon[type]),
-        }))
+        requests.post(
+            os.environ.get("WEB_HOOK_URL"),
+            data = json.dumps({
+                'username': user_name[type],
+                'text': message ,
+                'icon_emoji': (icon[type]),
+            })
+        )
     except Exception as err:
         print("slack通知関数でエラー:" + str(err))
         raise

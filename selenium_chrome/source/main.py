@@ -1,6 +1,7 @@
 import os, random, json, requests
 from selenium import webdriver
 from modules import login, deposit, contract, order_admin
+from api import cabee_signal
 
 download_dir = "/home/mjt_not_found_404/cabee-cloud/gcf-packs/selenium_chrome/source/Downloads"
 prefs = { 'download.prompt_for_download': False, 'download.directory_upgrade': True }
@@ -47,16 +48,11 @@ driver = webdriver.Chrome(os.getcwd() + "/chromedriver", options=chrome_options)
 driver.command_executor._commands["send_command"] = ('POST', '/session/$sessionId/chromium/send_command')
 driver.execute("send_command", params)
 
-# グローバル変数
-USER_INFO_OPEN = open('./json/user_info.json', 'r')
-USER_INFO = json.load(USER_INFO_OPEN)
-headers = { 'Access-Control-Allow-Origin': '*' }
-
 def trade_executor(request):
-    sign = call_cloud_function() # サイン取得
+    sign = cabee_signal.get_cabee_signal() # サイン取得
     print("sign: " + sign)
 
-    login.operation_login(driver, USER_INFO) # ログイン
+    login.operation_login(driver) # ログイン
     print("ログインしました")
 
     sheet_num = deposit.operation_get_deposit(driver) # 建玉枚数取得
@@ -65,22 +61,10 @@ def trade_executor(request):
     realtime_contract = contract.operation_get_contract(driver) # 保持中の建玉情報（売りor買い）を取得
     print("realtime_contract: " + realtime_contract)
 
-    order_admin.operation_switch_trade(driver, realtime_contract, sign) # 取引
+    order_admin.operation_switch_trade(driver, realtime_contract, sign, sheet_num) # 取引
 
     return response(request)
 
-# Cabeeの売買ステータスの確認
-def call_cloud_function():
-    url = "https://asia-northeast1-cabee-389803.cloudfunctions.net/signal"
-    headers = {
-        "Content-Type": "application/json",
-    }
-    data = {}
-    response = requests.post(url, headers=headers, data=json.dumps(data), timeout=70)
-    response_json = response.json()
-    return response_json["sign"]
-
-# レスポンス
 def response(request, error = None):
     if request:
         if request.method == 'OPTIONS':
