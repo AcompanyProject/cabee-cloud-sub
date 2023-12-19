@@ -10,6 +10,8 @@ def operation_get_contract(driver):
         WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.btn-menu-fut-op-repayment'))).click()
         time.sleep(5)
 
+        refundKbn_texts = []
+        contractAmt_texts = []
         try:
             # 建区分が売建or買建orなしか確認
             refundKbn_elements = WebDriverWait(driver, 20).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".refundKbn")))
@@ -19,6 +21,7 @@ def operation_get_contract(driver):
         except:
             contract = 'none'
 
+        contractAmt_total = 0
         if(len(refundKbn_texts) > 0 and len(contractAmt_texts) > 0):
             if all(text == '買建' for text in refundKbn_texts):
                 contract = 'buy'
@@ -36,9 +39,9 @@ def operation_get_contract(driver):
 
             time.sleep(5)
 
-            # HOMEに戻る
-            WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//li[@data-page="top"]'))).click()
-            time.sleep(5)
+        # HOMEに戻る
+        WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//li[@data-page="top"]'))).click()
+        time.sleep(5)
 
         return contract, contractAmt_total
     except Exception as err:
