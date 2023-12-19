@@ -25,7 +25,7 @@ def operation_get_deposit(driver):
         time.sleep(2)
 
         # 維持証拠金余力の取得
-        deposit = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID, 'powerInfoFutOpRealMgnDepoCapacity'))).text
+        deposit = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID, 'powerInfoFutOpRealCashBalance'))).text
         deposit = deposit.translate(str.maketrans({',':'', '円':''}))
 
         # 先物評価損益の取得
@@ -47,7 +47,7 @@ def operation_get_deposit(driver):
             # 4%以上の損失発生時に一応通知する
             slack.send_message(
                 'warning',
-                '4%を超える損失が発生しています。日中に15分以内にシステム損切りしなければ、手動で損切りしてください。'
+                '4%を超える損失が発生しています。15分以内に自動で損切りしなければ、手動で損切りしてください。'
             )
 
         # HOMEに戻る
