@@ -17,6 +17,12 @@ pip3 install jpholiday pytz firebase_admin firestore load_dotenv
 
 ## GCF 上でデプロイ
 
+※ 注意: デプロイ時にテストが走って売買が実行される可能性がある。
+デバックする場合:
+
+- Google Scheduler を一時停止すること
+- サインの切り替わりのタイミング（出来れば買い売りサインがないとき）にデプロイすること
+
 ```
 // main.pyの置き場所まで移動する
 cd gcf-packs/selenium_chrome/source
