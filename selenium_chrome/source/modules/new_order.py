@@ -8,21 +8,15 @@ from modules import order_pulldown, order_confirm
 
 def operation_new_order(driver, purpose, is_buy_sign, sheet_num):
     try:
-        # 返済&新規の場合は返済時に既にスピード注文ページに遷移してるのでリンククリックはスルー
-        if purpose != 'repayment_and_new_order':
-            slack.send_message('notice', '新規注文します')
-            WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.btn-menu-fut-op-speed-order'))).click()
-            time.sleep(5)
+        slack.send_message('notice', '新規注文します')
+
+        WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.btn-menu-fut-op-speed-order'))).click()
+        time.sleep(5)
 
         order_kind = 'buy-orders' if is_buy_sign == True else 'sell-orders'
         order_kind2 = '.order-label.buy' if is_buy_sign == True else '.order-label.sell'
 
-        if len(driver.find_element_by_class_name('common-key-input-field').get_attribute('value')) > 0:
-            driver.find_element_by_class_name('dealing-type-new-futop').click()
-            time.sleep(5)
-        else:
-            order_pulldown.operation_pulldown(driver, 'speed_order')
-            print("pulldownを選択完了")
+        order_pulldown.operation_pulldown(driver)
 
         driver.find_element_by_class_name('trade-unit-spinner').find_element_by_css_selector('.common-input.number-field').click()
 

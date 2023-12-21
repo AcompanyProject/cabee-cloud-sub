@@ -8,13 +8,13 @@ from modules import order_pulldown, order_confirm
 
 def operation_repayment_order(driver, purpose, is_buy_sign):
     try:
-        send_message_text = '返済注文と新規注文をします' if purpose == 'repayment_and_new_order' else '返済注文します'
+        send_message_text = '返済&新規注文をします。返済注文から開始中...' if purpose == 'repayment_and_new_order' else '返済注文します'
         slack.send_message('notice', send_message_text)
 
         WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.btn-menu-fut-op-speed-order'))).click()
         time.sleep(5)
 
-        order_pulldown.operation_pulldown(driver, 'speed_order')
+        order_pulldown.operation_pulldown(driver)
 
         driver.find_element_by_class_name('dealing-type-refund-futop').click()
         time.sleep(2)
@@ -34,7 +34,6 @@ def operation_repayment_order(driver, purpose, is_buy_sign):
         driver.find_element_by_class_name('select-position-btn').click()
         time.sleep(2)
 
-        driver.save_screenshot('log/images/click-comfirm-btn.png')
         buttons = driver.find_elements_by_class_name('confirm-btn')
         buttons[-1].click()
         time.sleep(5)

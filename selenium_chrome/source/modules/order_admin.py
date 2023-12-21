@@ -8,10 +8,6 @@ from log import slack
 from modules import login, deposit, contract, new_order, repayment_order
 
 def operation_switch_trade(driver, realtime_contract, sign, sheet_num):
-    # テスト
-    realtime_contract = 'buy'
-    sign = 'none'
-
     # パターン（17時くらいまで稼働させて、SQ跨ぎも対応させる）
     contract_sign_map = {
         ('none', 'sell'): ('new_order', False),
