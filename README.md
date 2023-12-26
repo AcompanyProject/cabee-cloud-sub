@@ -2,11 +2,15 @@
 
 ## 初期設定
 
-### 解凍
+### Google Cloud Function のターミナルで以下を実行
+
+"ログイン ID" "ログイン PASS" "取引暗礁番号" "Web_hook_url" は各自の値を当てはめる
 
 ```
-cd cabee-cloud-sub/selenium_chrome/source
-unzip headless-chromium.zip
+git clone git@github.com:AcompanyProject/cabee-cloud-sub.git
+cd gcf-packs/selenium_chrome/source
+chmod +x deploy.sh
+./deploy.sh "ログインID" "ログインPASS" "取引暗礁番号" "Web_hook_url"
 ```
 
 ### package install
