@@ -92,4 +92,4 @@ def response(request, error = None):
     else:
         return (json.dumps({"response": error}), 200, headers)
 
-# trade_executor("")
+trade_executor("")
