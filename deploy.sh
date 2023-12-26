@@ -6,7 +6,7 @@ TRADE_PASS=$3
 WEB_HOOK_URL=$4
 
 # 必要なファイルの解凍
-unzip cabee-cloud-sub/selenium_chrome/source/headless-chromium.zip
+unzip selenium_chrome/source/headless-chromium.zip
 
 # 不要なファイル削除
 rm pandas_numpy/pack.zip
