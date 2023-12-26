@@ -9,10 +9,10 @@ WEB_HOOK_URL=$4
 unzip cabee-cloud-sub/selenium_chrome/source/headless-chromium.zip
 
 # 不要なファイル削除
-rm cabee-cloud-sub/pandas_numpy/pack.zip
-rm cabee-cloud-sub/selenium_chrome/pack.zip
-rm cabee-cloud-sub/selenium_chrome/source/headless-chromium.zip
-rm cabee-cloud-sub/tensorflow2.0/pack.zip
+rm pandas_numpy/pack.zip
+rm selenium_chrome/pack.zip
+rm selenium_chrome/source/headless-chromium.zip
+rm tensorflow2.0/pack.zip
 
 cd cabee-cloud-sub/selenium_chrome/source
 
