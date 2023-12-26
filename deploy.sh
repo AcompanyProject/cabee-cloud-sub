@@ -5,11 +5,16 @@ USER_PASS=$2
 TRADE_PASS=$3
 WEB_HOOK_URL=$4
 
-# ディレクトリの変更
-cd cabee-cloud-sub/selenium_chrome/source
-
 # 必要なファイルの解凍
-unzip headless-chromium.zip
+unzip cabee-cloud-sub/selenium_chrome/source/headless-chromium.zip
+
+# 不要なファイル削除
+rm cabee-cloud-sub/pandas_numpy/pack.zip
+rm cabee-cloud-sub/selenium_chrome/pack.zip
+rm cabee-cloud-sub/selenium_chrome/source/headless-chromium.zip
+rm cabee-cloud-sub/tensorflow2.0/pack.zip
+
+cd cabee-cloud-sub/selenium_chrome/source
 
 # 必要なPythonパッケージのインストール
 pip3 install jpholiday pytz firebase_admin firestore load_dotenv
