@@ -14,7 +14,7 @@ rm selenium_chrome/pack.zip
 rm selenium_chrome/source/headless-chromium.zip
 rm tensorflow2.0/pack.zip
 
-cd cabee-cloud-sub/selenium_chrome/source
+cd selenium_chrome/source
 
 # 必要なPythonパッケージのインストール
 pip3 install jpholiday pytz firebase_admin firestore load_dotenv
