@@ -28,5 +28,8 @@ echo "WEB_HOOK_URL=${WEB_HOOK_URL}" >> .env
 # プロジェクトIDの取得
 PROJECT_ID=$(gcloud config get-value project)
 
+# プロジェクトIDの設定
+gcloud config set project $PROJECT_ID
+
 # Google Cloud Functionのデプロイ
-gcloud functions deploy trade_executor --runtime python37 --trigger-http --region asia-northeast1 --memory 512MB --project PROJECT_ID
+gcloud functions deploy trade_executor --runtime python37 --trigger-http --region asia-northeast1 --memory 512MB
