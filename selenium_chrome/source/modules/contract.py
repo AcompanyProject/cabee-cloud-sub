@@ -21,7 +21,6 @@ def operation_get_contract(driver):
         except:
             contract = 'none'
 
-        contractAmt_total = 0
         if(len(refundKbn_texts) > 0 and len(contractAmt_texts) > 0):
             if all(text == '買建' for text in refundKbn_texts):
                 contract = 'buy'
@@ -34,16 +33,13 @@ def operation_get_contract(driver):
             else:
                 contract = 'none'
 
-            # 建玉数を取得
-            contractAmt_total = sum(int(text) for text in contractAmt_texts)
-
             time.sleep(5)
 
         # HOMEに戻る
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//li[@data-page="top"]'))).click()
         time.sleep(5)
 
-        return contract, contractAmt_total
+        return contract
     except Exception as err:
         driver.save_screenshot('log/image/error/contract.png')
         slack.send_message('warning', '保持中の建玉情報の取得に失敗しました Error: ' + str(err))
