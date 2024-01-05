@@ -30,4 +30,4 @@ echo "WEB_HOOK_URL=${WEB_HOOK_URL}" >> .env
 gcloud config set project ${PROJECT_ID}
 
 # Google Cloud Functionのデプロイ
-gcloud functions deploy trade_executor --runtime python312 --trigger-http --region asia-northeast1 --memory 512MB --docker-registry=artifact-registry
+gcloud functions deploy trader --runtime python312 --trigger-http --region asia-northeast1 --memory 512MB --timeout 540s --docker-registry=artifact-registry
