@@ -1,3 +1,4 @@
+from datetime import datetime
 import time
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
@@ -19,6 +20,10 @@ def operation_switch_trade(driver, realtime_contract, sign, sheet_num):
     }
 
     purpose, is_buy_sign = contract_sign_map.get((realtime_contract, sign), (None, None))
+
+    now = datetime.now()
+    now_str = now.strftime("%H:%M:%S")
+    slack.send_message('notice', f'{now_str} ... sign: {sign}, sheet_num: {sheet_num}, realtime_contract: {realtime_contract}')
 
     if purpose == 'new_order':
         new_order.operation_new_order(driver, purpose, is_buy_sign, sheet_num)

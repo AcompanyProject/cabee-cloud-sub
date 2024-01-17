@@ -49,7 +49,7 @@ driver = webdriver.Chrome(os.getcwd() + "/chromedriver", options=chrome_options)
 driver.command_executor._commands["send_command"] = ('POST', '/session/$sessionId/chromium/send_command')
 # driver.execute("send_command", params)
 
-def trade_executor(request):
+def trader(request):
     sign = cabee_signal.get_cabee_signal() # サイン取得
     # print("sign: " + sign)
 
@@ -92,4 +92,4 @@ def response(request, error = None):
     else:
         return (json.dumps({"response": error}), 200, headers)
 
-trade_executor("")
+# trader("")
