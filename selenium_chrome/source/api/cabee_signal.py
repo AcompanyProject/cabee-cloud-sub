@@ -8,4 +8,4 @@ def get_cabee_signal():
     data = {}
     response = requests.post(url, headers=headers, data=json.dumps(data), timeout=70)
     response_json = response.json()
-    return response_json["sign"]
+    return response_json

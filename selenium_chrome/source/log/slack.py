@@ -17,6 +17,9 @@ def send_message(type, message):
             'error': 'エラー（要確認）'
         }
 
+        if type == 'error':
+            message = '<!here> ' + message
+
         requests.post(
             os.environ.get("WEB_HOOK_URL"),
             data = json.dumps({
