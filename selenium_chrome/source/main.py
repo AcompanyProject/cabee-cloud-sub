@@ -2,7 +2,6 @@ import os, random, json, requests
 from selenium import webdriver
 from modules import login, deposit, contract, order_admin
 from api import cabee_signal
-from log import slack
 
 # download_dir = "/home/mjt_not_found_404/cabee-cloud-sub/selenium_chrome/source/Downloads"
 # prefs = { 'download.prompt_for_download': False, 'download.directory_upgrade': True }
@@ -50,8 +49,8 @@ driver.command_executor._commands["send_command"] = ('POST', '/session/$sessionI
 # driver.execute("send_command", params)
 
 def trader(request):
-    sign = cabee_signal.get_cabee_signal() # サイン取得
-    # print("sign: " + sign)
+    signal_json = cabee_signal.get_cabee_signal() # サイン取得
+    # print("sign: " + signal_json['sign'] + ", is_handover_order: " + str(signal_json['is_handover_order']))
 
     login.operation_login(driver) # ログイン
     # print("ログインしました")
@@ -67,7 +66,11 @@ def trader(request):
     realtime_contract, contractAmt_total = contract.operation_get_contract(driver) # 保持中の建玉情報（売りor買い）を取得
     # print("建玉種類: " + str(realtime_contract) + ', 建玉数: ' + str(contractAmt_total))
 
-    order_admin.operation_switch_trade(driver, realtime_contract, sign, sheet_num) # 取引
+    if signal_json['is_handover_order']:
+        # SQ日の夜間
+        order_admin.operation_handover_trade(driver, realtime_contract, signal_json['sign'], sheet_num)
+    else:
+        order_admin.operation_switch_trade(driver, realtime_contract, signal_json['sign'], sheet_num)
 
     return response(request)
 

@@ -8,7 +8,7 @@ from modules import order_pulldown, order_confirm
 
 def operation_new_order(driver, purpose, is_buy_sign, sheet_num):
     try:
-        slack.send_message('notice', '新規注文します')
+        slack.send_message('notice', '<!here> 新規注文します')
 
         WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.btn-menu-fut-op-speed-order'))).click()
         time.sleep(5)
