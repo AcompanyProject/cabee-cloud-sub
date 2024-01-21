@@ -58,11 +58,6 @@ def trader(request):
     sheet_num = deposit.operation_get_deposit(driver) # 建玉枚数取得
     # print("sheet_num: " + str(sheet_num))
 
-    ### テスト ###
-    # sign = 'buy'
-    # sheet_num = 1
-    ############
-
     realtime_contract, contractAmt_total = contract.operation_get_contract(driver) # 保持中の建玉情報（売りor買い）を取得
     # print("建玉種類: " + str(realtime_contract) + ', 建玉数: ' + str(contractAmt_total))
 
