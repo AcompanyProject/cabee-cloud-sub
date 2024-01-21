@@ -24,6 +24,12 @@ def operation_switch_trade(driver, realtime_contract, sign, sheet_num):
     purpose, is_buy_sign = contract_sign_map.get((realtime_contract, sign), (None, None))
     slack.send_message('notice', f'{now_str} ... sign: {sign}, sheet_num: {sheet_num}, realtime_contract: {realtime_contract}')
 
+    ### テスト ###
+    # is_buy_sign = False
+    # purpose == 'repayment_order'
+    # repayment_order.operation_repayment_order(driver, purpose, is_buy_sign)
+    ############
+
     if purpose == 'new_order':
         new_order.operation_new_order(driver, purpose, is_buy_sign, sheet_num)
     elif purpose == 'repayment_order':
