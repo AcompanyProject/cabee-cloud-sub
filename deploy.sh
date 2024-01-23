@@ -27,6 +27,9 @@ echo "TRADE_PASS=${TRADE_PASS}" >> .env
 echo "MY_PROJECT_ID=${MY_PROJECT_ID}" >> .env
 echo "WEB_HOOK_URL=${WEB_HOOK_URL}" >> .env
 
+# Firestoreの初期設定
+python3 log/create_firestore_documents.py
+
 # gcloud設定
 gcloud config set project ${MY_PROJECT_ID}
 
