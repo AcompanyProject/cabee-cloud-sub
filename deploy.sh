@@ -3,8 +3,8 @@
 USER_ID=$1
 USER_PASS=$2
 TRADE_PASS=$3
-WEB_HOOK_URL=$4
-PROJECT_ID=$5
+MY_PROJECT_ID=$4
+WEB_HOOK_URL=$5
 
 # 必要なファイルの解凍
 unzip selenium_chrome/source/headless-chromium.zip -d selenium_chrome/source
@@ -18,16 +18,17 @@ rm tensorflow2.0/pack.zip
 cd selenium_chrome/source
 
 # 必要なPythonパッケージのインストール
-pip3 install jpholiday pytz firebase_admin firestore load_dotenv
+pip install -r requirements.txt
 
 # .env ファイルの作成
 echo "USER_ID=${USER_ID}" > .env
 echo "USER_PASS=${USER_PASS}" >> .env
 echo "TRADE_PASS=${TRADE_PASS}" >> .env
+echo "MY_PROJECT_ID=${MY_PROJECT_ID}" >> .env
 echo "WEB_HOOK_URL=${WEB_HOOK_URL}" >> .env
 
 # gcloud設定
-gcloud config set project ${PROJECT_ID}
+gcloud config set project ${MY_PROJECT_ID}
 
 # Google Cloud Functionのデプロイ
 gcloud functions deploy trader --runtime python312 --trigger-http --region asia-northeast1 --memory 512MB --timeout 540s --docker-registry=artifact-registry

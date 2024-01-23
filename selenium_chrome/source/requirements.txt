@@ -1,4 +1,3 @@
-jpholiday
 pytz
 load_dotenv
 functions-framework==3.*
