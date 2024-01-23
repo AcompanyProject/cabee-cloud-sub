@@ -18,8 +18,9 @@ def operation_get_contract(driver):
             refundKbn_texts = [element.text for element in refundKbn_elements]
             contractAmt_elements = WebDriverWait(driver, 20).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".contractAmt")))
             contractAmt_texts = [element.text for element in contractAmt_elements]
-        except:
+        except Exception as err:
             contract = 'none'
+            slack.send_message('warning', f'建区分の取得でエラー: {err}')
 
         contractAmt_total = 0
         if(len(refundKbn_texts) > 0 and len(contractAmt_texts) > 0):
