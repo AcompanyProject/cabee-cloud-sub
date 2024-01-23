@@ -5,11 +5,11 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from modules import contract
-from log import slack, status
+from log import slack, firestore
 
 load_dotenv()
 
-def operation_confirm(driver, order_kind, order_kind2):
+def operation_confirm(driver, order_kind, order_kind2, trade_kind):
     try:
         if len(driver.find_element_by_class_name('common-key-input-field').get_attribute('value')) == 0:
             driver.find_element_by_class_name('common-omit-confirm-btn').click()
@@ -22,10 +22,9 @@ def operation_confirm(driver, order_kind, order_kind2):
         driver.find_element_by_class_name('market-order').find_element_by_class_name(order_kind).click()
         time.sleep(2)
 
-        if not status.is_check_trading():
-            # 注文中ステータスでなければ
-            status.write_trade_time()
-
+        if firestore.check_duplication_trade(trade_kind):
+            # 前回の注文操作から4分以上経過（重複実行防止の実装）
+            firestore.update_trade_time(trade_kind) # 最新取引時刻を更新
             WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, order_kind2))).click() #注文確定
             time.sleep(3)
             slack.send_message('notice', '注文が完了しました')
