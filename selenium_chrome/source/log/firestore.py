@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-import os, time
+import os
 from dotenv import load_dotenv
 import functions_framework
 from google.cloud import firestore

@@ -13,8 +13,8 @@ def operation_new_order(driver, purpose, is_buy_sign, sheet_num):
         WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.btn-menu-fut-op-speed-order'))).click()
         time.sleep(5)
 
-        order_kind = 'buy-orders' if is_buy_sign == True else 'sell-orders'
-        order_kind2 = '.order-label.buy' if is_buy_sign == True else '.order-label.sell'
+        order_kind = 'buy-orders' if is_buy_sign is True else 'sell-orders'
+        order_kind2 = '.order-label.buy' if is_buy_sign is True else '.order-label.sell'
 
         order_pulldown.operation_pulldown(driver)
 

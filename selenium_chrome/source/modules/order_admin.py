@@ -1,12 +1,6 @@
 from datetime import datetime
-import time
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
 from log import slack
-from modules import login, deposit, contract, new_order, repayment_order
+from modules import new_order, repayment_order
 
 now = datetime.now()
 now_str = now.strftime("%H:%M:%S")
