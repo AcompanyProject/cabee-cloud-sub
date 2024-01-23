@@ -12,7 +12,7 @@ def operation_repayment_order(driver, purpose):
 
         # ホームからスピード注文ページに遷移
         WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.btn-menu-fut-op-speed-order'))).click()
-        time.sleep(5)
+        time.sleep(3)
 
         retry_count = 1
         order_kind = ''

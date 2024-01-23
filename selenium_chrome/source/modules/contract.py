@@ -8,7 +8,7 @@ def operation_get_contract(driver):
     try:
         # 建玉照会ページに遷移
         WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.btn-menu-fut-op-repayment'))).click()
-        time.sleep(5)
+        time.sleep(3)
 
         refundKbn_texts = []
         contractAmt_texts = []
@@ -38,11 +38,11 @@ def operation_get_contract(driver):
             # 建玉数を取得
             contractAmt_total = sum(int(text) for text in contractAmt_texts)
 
-            time.sleep(5)
+            time.sleep(3)
 
         # HOMEに戻る
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//li[@data-page="top"]'))).click()
-        time.sleep(5)
+        time.sleep(2)
 
         return contract, contractAmt_total
     except Exception as err:

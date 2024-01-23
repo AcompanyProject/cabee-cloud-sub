@@ -27,8 +27,8 @@ def operation_confirm(driver, order_kind, order_kind2, trade_kind):
             # 前回の注文操作から4分以上経過（重複実行防止の実装）
             firestore.update_trade_time(trade_kind) # 最新取引時刻を更新
             WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, order_kind2))).click() #注文確定
-            time.sleep(3)
             slack.send_message('notice', '注文が完了しました')
+            time.sleep(2)
 
             # リロードするとHOMEに戻り、pulldownに設定された値も戻される
             driver.refresh()

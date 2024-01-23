@@ -8,7 +8,6 @@ from log import slack
 def operation_pulldown(driver, retry_count = 1):
     try:
         # 先物取引の選択
-        time.sleep(5)
         future_trade_element = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID, 'index-select')))
         future_trade_select = Select(future_trade_element)
         future_trade_select.select_by_value('19')
