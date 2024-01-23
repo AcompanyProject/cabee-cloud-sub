@@ -27,15 +27,15 @@ def operation_switch_trade(driver, realtime_contract, sign, sheet_num):
     ### テスト ###
     # is_buy_sign = False
     # purpose == 'repayment_order'
-    # repayment_order.operation_repayment_order(driver, purpose, is_buy_sign)
+    # repayment_order.operation_repayment_order(driver, purpose)
     ############
 
     if purpose == 'new_order':
         new_order.operation_new_order(driver, purpose, is_buy_sign, sheet_num)
     elif purpose == 'repayment_order':
-        repayment_order.operation_repayment_order(driver, purpose, is_buy_sign)
+        repayment_order.operation_repayment_order(driver, purpose)
     elif purpose == 'repayment_and_new_order':
-        repayment_order.operation_repayment_order(driver, purpose, is_buy_sign)
+        repayment_order.operation_repayment_order(driver, purpose)
         new_order.operation_new_order(driver, 'new_order', is_buy_sign, sheet_num)
 
 # SQ日の引き継ぎ注文
