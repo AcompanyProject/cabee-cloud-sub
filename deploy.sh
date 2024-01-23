@@ -1,4 +1,5 @@
 #!/bin/bash
+
 # パラメータの受け取り
 USER_ID=$1
 USER_PASS=$2
@@ -34,4 +35,32 @@ python3 log/create_firestore_documents.py
 gcloud config set project ${MY_PROJECT_ID}
 
 # Google Cloud Functionのデプロイ
-gcloud functions deploy trader --runtime python312 --trigger-http --region asia-northeast1 --memory 512MB --timeout 540s --docker-registry=artifact-registry
+echo "Deploying Cloud Function..."
+if ! gcloud functions deploy trader --runtime python312 --trigger-http --region asia-northeast1 --memory 512MB --timeout 540s --docker-registry=artifact-registry; then
+  echo "Deployment failed."
+  exit 1
+fi
+echo "Cloud Function deployed successfully."
+
+# Cloud Schedulerのジョブを作成
+declare -A SCHEDULES
+SCHEDULES=(
+  ["trader-start"]="51,54,57 8 * * *"
+  ["trader"]="*/4 9-14 * * *"
+  ["trader-end"]="1,4,7,11,14 15 * * *"
+  ["trader-sq"]="30 16 * * *"
+)
+
+echo "Creating Cloud Scheduler jobs..."
+for NAME in "${!SCHEDULES[@]}"; do
+  echo "Creating job: ${NAME}"
+  gcloud scheduler jobs create http ${NAME} \
+    --schedule="${SCHEDULES[$NAME]}" \
+    --time-zone="Asia/Tokyo" \
+    --uri="https://asia-northeast1-${MY_PROJECT_ID}.cloudfunctions.net/trader" \
+    --oidc-service-account-email="${MY_PROJECT_ID}@appspot.gserviceaccount.com" \
+    --oidc-token-audience="https://asia-northeast1-${MY_PROJECT_ID}.cloudfunctions.net/trader" \
+    --attempt-deadline="10m" \
+    --location="asia-northeast1"
+done
+echo "Cloud Scheduler jobs created successfully."

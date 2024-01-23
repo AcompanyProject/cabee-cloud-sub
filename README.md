@@ -5,6 +5,15 @@ ruff --fix ./log/* ./modules/* ./main.py
 ruff check ./log/* ./modules/* ./main.py
 ```
 
+## 初期設定
+```
+chmod +x deploy.sh;
+$ ./deploy.sh "ログインID" "ログインPASS" "取引暗礁番号" "project_id" "web_hook_url"
+
+途中で「Allow unauthenticated invocations of new function [trade_executor]? (y/N)? 」と表示されたら、
+「N」と入力してエンター
+```
+
 ## GCF 上でデプロイ
 main.pyの階層で実行
 ```
