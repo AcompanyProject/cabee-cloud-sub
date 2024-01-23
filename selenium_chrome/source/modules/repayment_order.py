@@ -1,5 +1,4 @@
 import time
-from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
@@ -51,9 +50,9 @@ def operation_repayment_order(driver, purpose):
             buttons[-1].click()
             time.sleep(5)
             order_confirm.operation_confirm(driver, order_kind, order_kind2, 'repayment_order')
-        except:
+        except Exception as err:
             driver.save_screenshot('log/image/error/repayment-order-contract-notfound.png')
-            slack.send_message('error', '建玉を見つけられませんでした')
+            slack.send_message('error', f'建玉を見つけられませんでした: {err}')
     except Exception as err:
         driver.save_screenshot('log/image/error/repayment-order.png')
         slack.send_message('error', '返済注文中にエラー Error: ' + str(err))

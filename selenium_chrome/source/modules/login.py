@@ -1,4 +1,4 @@
-import os, time, json
+import os, time
 from dotenv import load_dotenv
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC

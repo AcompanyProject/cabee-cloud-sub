@@ -1,4 +1,6 @@
-import os, random, json, requests
+import os
+import random
+import json
 from selenium import webdriver
 from modules import login, deposit, contract, order_admin
 from api import cabee_signal
