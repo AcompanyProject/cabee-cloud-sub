@@ -56,5 +56,5 @@ def refresh_trade_time(trade_kind):
         doc_ref = DB.collection("trader").document(trade_kind)
         doc_ref.set(data)
     except Exception as err:
-        slack.send_message('warning', 'update_trade_time Error: ' + str(err))
+        slack.send_message('warning', 'refresh_trade_time Error: ' + str(err))
         raise
