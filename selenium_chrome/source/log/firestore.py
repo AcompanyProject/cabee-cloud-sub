@@ -37,11 +37,7 @@ def check_duplication_trade(trade_kind):
         can_trade = (now - trade_time) >= timedelta(minutes=4)
         slack.send_message('notice', f'前回の注文時刻: {trade_time}, 現在時刻: {now}')
 
-        if can_trade:
-            return True
-        else:
-            slack.send_message('notice', '注文の重複実行をブロックしました')
-            return False
+        return can_trade
     except Exception as err:
         slack.send_message('warning', 'check_duplication_trade Error: ' + str(err))
         raise

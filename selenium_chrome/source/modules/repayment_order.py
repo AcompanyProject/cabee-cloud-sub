@@ -19,11 +19,12 @@ def operation_repayment_order(driver, purpose):
         order_kind2 = ''
 
         order_pulldown.operation_pulldown(driver, retry_count)
-        driver.find_element_by_class_name('dealing-type-refund-futop').click()
+        driver.find_element_by_class_name('dealing-type-refund-futop').click() # 返済を選択
         time.sleep(2)
-        driver.find_element_by_id('fut-op-speed-order-input-position-list-button').click()
+        driver.find_element_by_id('fut-op-speed-order-input-position-list-button').click() # 建玉指定ボタン押下
         time.sleep(2)
 
+        # 建玉選択モーダル内の操作
         if len(driver.find_elements_by_class_name('grid-body-empty')) >= 1:
             # 買い建玉が存在しない
             driver.find_element_by_css_selector('.switch.sell-toggle').click()
@@ -35,20 +36,23 @@ def operation_repayment_order(driver, purpose):
                 time.sleep(2)
             else:
                 # 売り建玉が存在する
-                order_kind = 'sell-orders'
-                order_kind2 = '.order-label.sell'
+                order_kind = 'buy-orders'
+                order_kind2 = '.order-label.buy'
         else:
             # 買い建玉が存在する
-            order_kind = 'buy-orders'
-            order_kind2 = '.order-label.buy'
+            order_kind = 'sell-orders'
+            order_kind2 = '.order-label.sell'
 
+        # 全数量選択
         driver.find_element_by_class_name('select-position-btn').click()
-        time.sleep(2)
+        time.sleep(1)
+
+        # 確定ボタン押下
+        buttons = driver.find_elements_by_class_name('confirm-btn')
+        buttons[-1].click()
+        time.sleep(3)
 
         try:
-            buttons = driver.find_elements_by_class_name('confirm-btn')
-            buttons[-1].click()
-            time.sleep(5)
             order_confirm.operation_confirm(driver, order_kind, order_kind2, 'repayment_order')
         except Exception as err:
             driver.save_screenshot('log/image/error/repayment-order-contract-notfound.png')
