@@ -24,7 +24,7 @@ def operation_new_order(driver, purpose, is_buy_sign, sheet_num):
         driver_actions.send_keys(str(sheet_num))
         driver_actions.perform()
 
-        order_confirm.operation_confirm(driver, order_kind, order_kind2)
+        order_confirm.operation_confirm(driver, order_kind, order_kind2, 'new_order')
     except Exception as err:
         driver.save_screenshot('log/image/error/new-order.png')
         slack.send_message('error', '新規注文中にエラー Error: ' + str(err))
