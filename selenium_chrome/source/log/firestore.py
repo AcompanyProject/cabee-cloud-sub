@@ -45,3 +45,16 @@ def check_duplication_trade(trade_kind):
     except Exception as err:
         slack.send_message('warning', 'check_duplication_trade Error: ' + str(err))
         raise
+
+# 最新の取引時刻から4分以上経過しているか確認
+def refresh_trade_time(trade_kind):
+    try:
+        data = {
+            "datetime": "2024/01/22 06:28:09",
+        }
+
+        doc_ref = DB.collection("trader").document(trade_kind)
+        doc_ref.set(data)
+    except Exception as err:
+        slack.send_message('warning', 'update_trade_time Error: ' + str(err))
+        raise
