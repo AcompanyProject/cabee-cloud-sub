@@ -16,11 +16,13 @@ def operation_repayment_order(driver, purpose):
 
         retry_count = 1
         order_kind, order_kind2 = None, None
-        while retry_count < 5 and order_kind is None:
-            retry_count += 1
+        while retry_count < 5:
             order_kind, order_kind2 = get_order_kind(driver, retry_count)
+            if order_kind is not None and order_kind2 is not None:
+                break
+            retry_count += 1
 
-        if order_kind is None:
+        if order_kind is None and order_kind2 is None:
             raise Exception('get_order_kind returned None after 4 attempts')
 
         # 全数量選択
