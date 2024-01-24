@@ -46,7 +46,7 @@ def check_duplication_trade(trade_kind):
         slack.send_message('warning', 'check_duplication_trade Error: ' + str(err))
         raise
 
-# 最新の取引時刻から4分以上経過しているか確認
+# 最新の取引時刻をリセット
 def refresh_trade_time(trade_kind):
     try:
         data = {
