@@ -47,7 +47,7 @@ declare -A SCHEDULES
 SCHEDULES=(
   ["trader-start"]="50,51,52,53,54,55 8 * * *"
   ["trader"]="*/1 9-14 * * *"
-  ["trader-end"]="0,1,2,3,4,5,6 15 * * *"
+  ["trader-end"]="0,1,2,3,4,5,10,11,12,13,14 15 * * *"
   ["trader-sq"]="30 16 * * *"
 )
 

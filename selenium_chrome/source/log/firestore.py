@@ -35,7 +35,6 @@ def check_duplication_trade(trade_kind):
         trade_time = datetime.strptime(doc.to_dict()["datetime"], "%Y/%m/%d %H:%M:%S")
         now = datetime.now()
         can_trade = (now - trade_time) >= timedelta(minutes=4)
-        slack.send_message('notice', f'前回の注文時刻: {trade_time}, 現在時刻: {now}')
 
         return can_trade
     except Exception as err:
