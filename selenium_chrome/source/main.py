@@ -1,13 +1,11 @@
 import os
 import random
 import json
+import time
 from selenium import webdriver
-from modules import login, deposit, contract, order_admin
+from modules import login, deposit, contract, order_admin, utils
 from api import cabee_signal
 
-# download_dir = "/home/mjt_not_found_404/cabee-cloud-sub/selenium_chrome/source/Downloads"
-# prefs = { 'download.prompt_for_download': False, 'download.directory_upgrade': True }
-# params = { 'cmd': 'Page.setDownloadBehavior', 'params': { 'behavior': 'allow', 'downloadPath': download_dir }}
 chrome_options = webdriver.ChromeOptions()
 user_agent = [
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 13_0_1; Valve Steam GameOverlay/1679680416) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36',
@@ -44,16 +42,11 @@ options = [
 for option in options:
     chrome_options.add_argument(option)
 
-# chrome_options.add_experimental_option('prefs', prefs) # headlessモードでのダウンロードを可能にする
 chrome_options.binary_location = os.getcwd() + "/headless-chromium"
 driver = webdriver.Chrome(os.getcwd() + "/chromedriver", options=chrome_options)
 driver.command_executor._commands["send_command"] = ('POST', '/session/$sessionId/chromium/send_command')
-# driver.execute("send_command", params)
 
 def trader(request):
-    signal_json = cabee_signal.get_cabee_signal() # サイン取得
-    # print("sign: " + signal_json['sign'] + ", is_handover_order: " + str(signal_json['is_handover_order']))
-
     login.operation_login(driver) # ログイン
     # print("ログインしました")
 
@@ -63,11 +56,20 @@ def trader(request):
     realtime_contract, contractAmt_total = contract.operation_get_contract(driver) # 保持中の建玉情報（売りor買い）を取得
     # print("建玉種類: " + str(realtime_contract) + ', 建玉数: ' + str(contractAmt_total))
 
-    if signal_json['is_handover_order']:
-        # SQ日の夜間
-        order_admin.operation_handover_trade(driver, realtime_contract, signal_json['sign'], sheet_num)
-    else:
-        order_admin.operation_switch_trade(driver, realtime_contract, signal_json['sign'], sheet_num)
+    for reload_count in range(15):
+        signal_json = cabee_signal.get_cabee_signal() # サイン取得
+
+        if signal_json['is_handover_order']:
+            # SQ日の夜間
+            order_admin.operation_handover_trade(driver, realtime_contract, signal_json['sign'], sheet_num)
+        else:
+            order_admin.operation_switch_trade(driver, realtime_contract, signal_json['sign'], sheet_num)
+
+        if utils.is_in_update_graph():
+            # 分の1桁目が0〜4
+            time.sleep(2)
+        else:
+            break
 
     return response(request)
 
