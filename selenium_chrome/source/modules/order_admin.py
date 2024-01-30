@@ -2,7 +2,7 @@ import time
 import pytz
 from datetime import datetime
 from log import slack
-from modules import new_order, repayment_order
+from modules import new_order, repayment_order, utils
 from api import cabee_signal
 
 def operation_check_sign(driver, realtime_contract, sheet_num):
@@ -24,6 +24,7 @@ def operation_check_sign(driver, realtime_contract, sheet_num):
             signal_json = cabee_signal.get_cabee_signal()
             sign = signal_json['sign']
             is_handover_order = signal_json['is_handover_order']
+            purpose = None
 
             slack.send_message('notice', f'{now_str} ... sign: {sign}, sheet_num: {sheet_num}, realtime_contract: {realtime_contract}')
 
@@ -42,6 +43,9 @@ def operation_check_sign(driver, realtime_contract, sheet_num):
                 elif purpose == 'repayment_and_new_order':
                     repayment_order.operation_repayment_order(driver, purpose)
                     new_order.operation_new_order(driver, 'new_order', is_buy_sign, sheet_num)
+
+            if purpose is not None or not utils.is_in_update_graph(now_str):
+                break
             
             time.sleep(2)
     except Exception as err:

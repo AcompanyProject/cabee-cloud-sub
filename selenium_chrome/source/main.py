@@ -46,13 +46,8 @@ driver.command_executor._commands["send_command"] = ('POST', '/session/$sessionI
 
 def trader(request):
     login.operation_login(driver) # ログイン
-    # print("ログインしました")
-
     sheet_num = deposit.operation_get_deposit(driver) # 建玉枚数取得
-    # print("sheet_num: " + str(sheet_num))
-
     realtime_contract, contractAmt_total = contract.operation_get_contract(driver) # 保持中の建玉情報（売りor買い）を取得
-    # print("建玉種類: " + str(realtime_contract) + ', 建玉数: ' + str(contractAmt_total))
 
     order_admin.operation_check_sign(driver, realtime_contract, sheet_num)
 
