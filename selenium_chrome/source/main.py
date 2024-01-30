@@ -1,10 +1,8 @@
 import os
 import random
 import json
-import time
 from selenium import webdriver
-from modules import login, deposit, contract, order_admin, utils
-from api import cabee_signal
+from modules import login, deposit, contract, order_admin
 
 chrome_options = webdriver.ChromeOptions()
 user_agent = [
@@ -56,20 +54,7 @@ def trader(request):
     realtime_contract, contractAmt_total = contract.operation_get_contract(driver) # 保持中の建玉情報（売りor買い）を取得
     # print("建玉種類: " + str(realtime_contract) + ', 建玉数: ' + str(contractAmt_total))
 
-    for reload_count in range(15):
-        signal_json = cabee_signal.get_cabee_signal() # サイン取得
-
-        if signal_json['is_handover_order']:
-            # SQ日の夜間
-            order_admin.operation_handover_trade(driver, realtime_contract, signal_json['sign'], sheet_num)
-        else:
-            order_admin.operation_switch_trade(driver, realtime_contract, signal_json['sign'], sheet_num)
-
-        if utils.is_in_update_graph():
-            # 分の1桁目が0〜4
-            time.sleep(2)
-        else:
-            break
+    order_admin.operation_check_sign(driver, realtime_contract, sheet_num)
 
     return response(request)
 
@@ -93,5 +78,3 @@ def response(request, error = None):
         return (json.dumps({"response": "ok"}), 200, headers)
     else:
         return (json.dumps({"response": error}), 200, headers)
-
-# trader("")
