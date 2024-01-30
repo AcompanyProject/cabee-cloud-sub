@@ -7,9 +7,6 @@ from api import cabee_signal
 
 def operation_check_sign(driver, realtime_contract, sheet_num):
     try:
-        now = datetime.now(pytz.timezone('Asia/Tokyo'))
-        now_str = now.strftime("%H:%M:%S")
-
         contract_sign_map = {
             ('none', 'sell'): ('new_order', False),
             ('none', 'buy'): ('new_order', True),
@@ -20,13 +17,17 @@ def operation_check_sign(driver, realtime_contract, sheet_num):
         }
 
         for reload_count in range(15):
+            now = datetime.now(pytz.timezone('Asia/Tokyo'))
+            now_str = now.strftime("%H:%M:%S")
+
             # 複数回連続でサインを取得
             signal_json = cabee_signal.get_cabee_signal()
             sign = signal_json['sign']
             is_handover_order = signal_json['is_handover_order']
             purpose = None
 
-            slack.send_message('notice', f'{now_str} ... sign: {sign}, sheet_num: {sheet_num}, realtime_contract: {realtime_contract}')
+            if reload_count == 0:
+                slack.send_message('notice', f'{now_str} ... sign: {sign}, sheet_num: {sheet_num}, realtime_contract: {realtime_contract}')
 
             if is_handover_order:
                 # SQ日の夜間
