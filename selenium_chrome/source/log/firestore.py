@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 import os
-import pytz
 from dotenv import load_dotenv
 import functions_framework
 from google.cloud import firestore
@@ -14,7 +13,7 @@ DB = firestore.Client(project=MY_PROJECT_ID)
 # 取引時刻の更新
 def update_trade_time(trade_kind):
     try:
-        now = datetime.now(pytz.timezone('Asia/Tokyo'))
+        now = datetime.now()
         datetime_str = now.strftime("%Y/%m/%d %H:%M:%S")
 
         data = {
@@ -34,7 +33,7 @@ def check_duplication_trade(trade_kind):
         doc = doc_ref.get()
 
         trade_time = datetime.strptime(doc.to_dict()["datetime"], "%Y/%m/%d %H:%M:%S")
-        now = datetime.now(pytz.timezone('Asia/Tokyo'))
+        now = datetime.now()
         can_trade = (now - trade_time) >= timedelta(minutes=4)
 
         slack.send_message('notice', f'check_duplication_trade() trade_kind: {trade_kind}, trade_time: {trade_time}, now: {now}, can_trade: {can_trade}')
