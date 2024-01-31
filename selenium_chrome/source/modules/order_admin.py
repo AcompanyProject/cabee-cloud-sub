@@ -2,7 +2,7 @@ import time
 import pytz
 from datetime import datetime
 from log import slack
-from modules import new_order, repayment_order, utils
+from modules import new_order, repayment_order
 from api import cabee_signal
 
 def operation_check_sign(driver, realtime_contract, sheet_num):
@@ -22,20 +22,18 @@ def operation_check_sign(driver, realtime_contract, sheet_num):
 
             # 複数回連続でサインを取得
             signal_json = cabee_signal.get_cabee_signal()
-            sign = signal_json['sign']
-            is_handover_order = signal_json['is_handover_order']
             purpose = None
 
             if reload_count == 0:
-                slack.send_message('notice', f'{now_str} ... sign: {sign}, sheet_num: {sheet_num}, realtime_contract: {realtime_contract}')
+                slack.send_message('notice', f'{now_str} ... sign: {signal_json["sign"]}, sheet_num: {sheet_num}, realtime_contract: {realtime_contract}')
 
-            if is_handover_order:
+            if signal_json['is_handover_order']:
                 # SQ日の夜間
-                slack.send_message('notice', f'【SQ日の夜間です】 {now_str} ... sign: {sign}, sheet_num: {sheet_num}')
-                operation_handover_trade(driver, realtime_contract, sign, sheet_num)
+                slack.send_message('notice', f'【SQ日の夜間です】 {now_str} ... sign: {signal_json["sign"]}, sheet_num: {sheet_num}')
+                operation_handover_trade(driver, realtime_contract, signal_json['sign'], sheet_num)
                 break
             else:
-                purpose, is_buy_sign = contract_sign_map.get((realtime_contract, sign), (None, None))
+                purpose, is_buy_sign = contract_sign_map.get((realtime_contract, signal_json['sign']), (None, None))
 
                 if purpose == 'new_order':
                     new_order.operation_new_order(driver, purpose, is_buy_sign, sheet_num)
@@ -45,9 +43,9 @@ def operation_check_sign(driver, realtime_contract, sheet_num):
                     repayment_order.operation_repayment_order(driver, purpose)
                     new_order.operation_new_order(driver, 'new_order', is_buy_sign, sheet_num)
 
-            if purpose is not None or not utils.is_in_update_graph(now_str):
+            if purpose is not None:
                 break
-            
+
             time.sleep(2)
     except Exception as err:
         slack.send_message('error', 'operation_check_sign関数でエラー Error: ' + str(err))
