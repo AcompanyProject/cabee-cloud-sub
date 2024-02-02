@@ -69,6 +69,9 @@ def trader(request):
     else:
         order_admin.operation_switch_trade(driver, realtime_contract, signal_json['sign'], sheet_num)
 
+    # テスト注文
+    # order_admin.test_operation_switch_trade(driver, realtime_contract, 'new_order', True, 1)
+
     return response(request)
 
 def response(request, error = None):
@@ -92,4 +95,4 @@ def response(request, error = None):
     else:
         return (json.dumps({"response": error}), 200, headers)
 
-# trader("")
+trader("")
