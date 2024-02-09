@@ -51,6 +51,9 @@ def trader(request):
 
     order_admin.operation_check_sign(driver, realtime_contract, sheet_num)
 
+    # テスト注文
+    # order_admin.test_operation_switch_trade(driver, realtime_contract, 'new_order', True, 1)
+
     return response(request)
 
 def response(request, error = None):
