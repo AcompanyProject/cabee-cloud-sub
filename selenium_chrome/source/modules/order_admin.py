@@ -30,7 +30,7 @@ def operation_check_sign(driver, realtime_contract, sheet_num):
             if signal_json['is_handover_order']:
                 # SQ日の夜間
                 slack.send_message('notice', f'【SQ日の夜間です】 {now_str} ... sign: {signal_json["sign"]}, sheet_num: {sheet_num}')
-                operation_handover_trade(driver, realtime_contract, signal_json['sign'], sheet_num)
+                operation_handover_trade(driver, signal_json['sign'], sheet_num)
                 break
             else:
                 purpose, is_buy_sign = contract_sign_map.get((realtime_contract, signal_json['sign']), (None, None))
