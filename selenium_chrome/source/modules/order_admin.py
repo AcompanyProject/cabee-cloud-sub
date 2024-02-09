@@ -78,7 +78,7 @@ def operation_handover_trade(driver, sign, sheet_num):
         purpose, is_buy_sign = contract_sign_map.get((sign), (None, None))
 
         if purpose == 'new_order':
-            slack.send_message('notice', 'SQで建玉が自動決済されているため、新規注文を行います')
+            slack.send_message('notice', 'SQ日のため日中に建玉は自動決済されました。ですが、サインは継続しているため再度新規注文を行います。')
             new_order.operation_new_order(driver, purpose, is_buy_sign, sheet_num)
     except Exception as err:
         slack.send_message('error', 'operation_handover_trade関数でエラー Error: ' + str(err))
