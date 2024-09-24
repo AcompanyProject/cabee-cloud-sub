@@ -25,7 +25,7 @@ def operation_get_deposit(driver):
         time.sleep(2)
 
         # 維持証拠金余力の取得
-        deposit = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID, 'powerInfoFutOpRealCashBalance'))).text
+        deposit = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID, 'powerInfoFutOpFutOpMgnDepo'))).text
         deposit = deposit.translate(str.maketrans({',':'', '円':''}))
 
         # 建玉枚数の決定
