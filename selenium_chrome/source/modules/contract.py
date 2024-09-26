@@ -25,7 +25,6 @@ def operation_get_contract(driver):
             if len(refundKbn_texts) != len(repay_button_elements):
                 # 返済ボタンと建区分の個数が異なる場合はSQとみなす
                 isSQ = True
-                slack.send_message('notice', "本日はSQ日のため建玉の引き継ぎ処理を実行します。")
         except Exception:
             contract_type = 'none'
 
@@ -37,6 +36,7 @@ def operation_get_contract(driver):
                 contract_type = 'sell'
             elif '買建' in refundKbn_texts and '売建' in refundKbn_texts:
                 slack.send_message('warning', '保有中の建玉に買建と売建の両方が存在しています')
+                # SQの強制決済中にサインが変更された場合に起こりうる
                 contract_type = 'both'
             else:
                 contract_type = 'none'
