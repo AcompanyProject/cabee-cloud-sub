@@ -11,7 +11,7 @@ from log import slack, firestore
 
 load_dotenv()
 
-def operation_confirm(driver, order_kind, order_kind2, trade_kind):
+def operation_confirm(driver, order_kind, order_kind2, order_type):
     try:
         if len(driver.find_element_by_class_name('common-key-input-field').get_attribute('value')) == 0:
             driver.find_element_by_class_name('common-omit-confirm-btn').click()
@@ -21,12 +21,15 @@ def operation_confirm(driver, order_kind, order_kind2, trade_kind):
             driver_actions.send_keys(os.environ.get("TRADE_PASS"))
             driver_actions.perform()
 
-        if firestore.check_duplication_trade(trade_kind):
+        if firestore.check_duplication_trade(order_type):
             # 前回の注文操作から4分以上経過（重複実行防止の実装）
-            firestore.update_trade_time(trade_kind) # 最新取引時刻を更新
+            firestore.update_trade_time(order_type) # 最新取引時刻を更新
+
             driver.find_element_by_class_name('market-order').find_element_by_class_name(order_kind).click()
             time.sleep(1)
-            WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, order_kind2))).click() #注文確定
+
+            # 注文確定
+            WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, order_kind2))).click()
             slack.send_message('notice', '注文が完了しました')
             time.sleep(2)
 
@@ -35,13 +38,13 @@ def operation_confirm(driver, order_kind, order_kind2, trade_kind):
             time.sleep(5)
 
             # 正しく注文されたか確認する
-            realtime_contract, contractAmt_total = contract.operation_get_contract(driver)
-            slack.send_message('notice', '注文後の建玉確認 （建玉種類: ' + str(realtime_contract) + ', 建玉数: ' + str(contractAmt_total) + '）')
+            contract_type, isSQ, contract_total = contract.operation_get_contract(driver)
+            slack.send_message('notice', '注文後の建玉確認 （建玉種類: ' + str(contract_type) + ', 建玉数: ' + str(contract_total) + '）')
 
-            if (trade_kind == "repayment_order" and int(contractAmt_total) > 0) or \
-                (trade_kind == "new_order" and int(contractAmt_total) == 0):
+            if (order_type == "repayment_order" and int(contract_total) > 0) or \
+                (order_type == "new_order" and int(contract_total) == 0):
                     # 注文操作失敗時
-                    firestore.refresh_trade_time(trade_kind)
+                    firestore.refresh_trade_time(order_type)
                     slack.send_message('error', '建玉がサイン通りになっていないため処理を中断します')
                     sys.exit()
         else:

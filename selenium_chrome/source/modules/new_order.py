@@ -6,7 +6,15 @@ from selenium.webdriver.common.by import By
 from log import slack
 from modules import order_pulldown, order_confirm
 
-def operation_new_order(driver, purpose, is_buy_sign, sheet_num):
+def operation_new_order(driver, is_buy_sign, sheet_num):
+    if sheet_num == 0:
+        slack.send_message('error', 'operation_new_order: 新規購入の枚数が0枚になっています')
+        raise
+
+    if is_buy_sign is None:
+        slack.send_message('error', 'operation_new_order: サインがNoneになっています')
+        raise
+
     try:
         slack.send_message('notice', '<!here> 新規注文します')
 

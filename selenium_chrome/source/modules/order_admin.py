@@ -43,19 +43,19 @@ def operation_check_sign(driver, contract_type, sheet_num, isSQ):
         if reload_count == 0:
             slack.send_message('notice', f'sign: {signal_json}, sheet_num: {sheet_num}, contract_type: {contract_type}')
 
-        purpose, is_buy_sign = contract_sign_map.get((contract_type, signal_json, isSQ), (None, None))
+        order_steps, is_buy_sign = contract_sign_map.get((contract_type, signal_json, isSQ), (None, None))
 
-        if purpose == 'new_order':
-            new_order.operation_new_order(driver, purpose, is_buy_sign, sheet_num)
-        elif purpose == 'repayment_order':
-            repayment_order.operation_repayment_order(driver, purpose)
-        elif purpose == 'repayment_and_new_order':
-            repayment_order.operation_repayment_order(driver, purpose)
-            new_order.operation_new_order(driver, 'new_order', is_buy_sign, sheet_num)
+        if order_steps == 'new_order':
+            new_order.operation_new_order(driver, is_buy_sign, sheet_num)
+        elif order_steps == 'repayment_order':
+            repayment_order.operation_repayment_order(driver, order_steps)
+        elif order_steps == 'repayment_and_new_order':
+            repayment_order.operation_repayment_order(driver, order_steps)
+            new_order.operation_new_order(driver, is_buy_sign, sheet_num)
         else:
             print("なにもしない")
 
-        if purpose is not None:
+        if order_steps is not None:
             break
 
         time.sleep(2)
