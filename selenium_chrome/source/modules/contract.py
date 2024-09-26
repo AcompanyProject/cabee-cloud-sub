@@ -15,6 +15,7 @@ def operation_get_contract(driver):
         contract_type = 'none'
         contractAmt_texts = []
         contract_total = 0
+        repay_button_count = 0
 
         try:
             # 建区分（売建or買建）の取得
@@ -27,8 +28,9 @@ def operation_get_contract(driver):
 
             # 返済ボタンの取得
             repay_button_elements = WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".common-label-repay")))
+            repay_button_count = len(repay_button_elements)
 
-            if len(refundKbn_texts) != len(repay_button_elements):
+            if len(refundKbn_texts) != repay_button_count:
                 # 返済ボタンと建区分の個数が異なる場合はSQとみなす
                 isSQ = True
         except Exception:
@@ -55,7 +57,7 @@ def operation_get_contract(driver):
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//li[@data-page="top"]'))).click()
         time.sleep(2)
 
-        return contract_type, isSQ, contract_total
+        return contract_type, isSQ, contract_total, repay_button_count
     except Exception as err:
         driver.save_screenshot('log/image/error/contract.png')
         slack.send_message('warning', '保持中の建玉情報の取得に失敗しました Error: ' + str(err))

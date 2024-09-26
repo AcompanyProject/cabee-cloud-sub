@@ -38,17 +38,22 @@ def operation_confirm(driver, order_kind, order_kind2, order_type):
             time.sleep(5)
 
             # 正しく注文されたか確認する
-            contract_type, isSQ, contract_total = contract.operation_get_contract(driver)
+            contract_type, isSQ, contract_total, repay_button_count = contract.operation_get_contract(driver)
             slack.send_message('notice', '注文後の建玉確認 （建玉種類: ' + str(contract_type) + ', 建玉数: ' + str(contract_total) + '）')
 
-            if (order_type == "repayment_order" and int(contract_total) > 0) or \
-                (order_type == "new_order" and int(contract_total) == 0):
-                    # 注文操作失敗時
+            # 以下の場合はエラーを出力
+            # - 返済注文後、返済ボタンが存在する
+            # - 新規注文後、返済ボタンが存在しない
+            if (order_type == "repayment_order" and int(repay_button_count) > 0) or \
+                (order_type == "new_order" and int(repay_button_count) == 0):
                     firestore.refresh_trade_time(order_type)
                     slack.send_message('error', '建玉がサイン通りになっていないため処理を中断します')
-                    sys.exit()
+                    raise
+            else:
+                slack.send_message('notice', '正常に取引処理が完了しました')
         else:
             slack.send_message('notice', '重複注文をブロックしました')
+            raise
     except Exception as err:
         driver.save_screenshot('log/image/error/order-confirm.png')
         slack.send_message('error', '注文確定操作時にエラー Error: ' + str(err))
