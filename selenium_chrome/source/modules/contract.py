@@ -11,39 +11,42 @@ def operation_get_contract(driver):
         time.sleep(3)
 
         refundKbn_texts = []
-        contractAmt_texts = []
+        isSQ = False
+        contract_type = 'none'
+
         try:
-            # 建区分が売建or買建orなしか確認
+            # 建区分（売建or買建）の取得
             refundKbn_elements = WebDriverWait(driver, 20).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".refundKbn")))
             refundKbn_texts = [element.text for element in refundKbn_elements]
-            contractAmt_elements = WebDriverWait(driver, 20).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".contractAmt")))
-            contractAmt_texts = [element.text for element in contractAmt_elements]
+
+            # 返済ボタンの取得
+            repay_button_elements = WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".common-label-repay")))
+
+            if len(refundKbn_texts) != len(repay_button_elements):
+                # 返済ボタンと建区分の個数が異なる場合はSQとみなす
+                isSQ = True
         except Exception:
-            contract = 'none'
+            contract_type = 'none'
 
-        contractAmt_total = 0
-        if(len(refundKbn_texts) > 0 and len(contractAmt_texts) > 0):
+        if len(refundKbn_texts) > 0:
+            # 建玉が存在する場合
             if all(text == '買建' for text in refundKbn_texts):
-                contract = 'buy'
+                contract_type = 'buy'
             elif all(text == '売建' for text in refundKbn_texts):
-                contract = 'sell'
+                contract_type = 'sell'
             elif '買建' in refundKbn_texts and '売建' in refundKbn_texts:
-                multi_error_text = '返済注文時にエラーが発生したようです: 保有中の建玉に買建と売建の両方が存在しています'
-                slack.send_message('error', multi_error_text)
-                raise Exception(multi_error_text)
+                slack.send_message('warning', '保有中の建玉に買建と売建の両方が存在しています')
+                # SQの強制決済中にサインが変更された場合に起こりうる
+                contract_type = 'both'
             else:
-                contract = 'none'
-
-            # 建玉数を取得
-            contractAmt_total = sum(int(text) for text in contractAmt_texts)
-
-            time.sleep(3)
+                contract_type = 'none'
 
         # HOMEに戻る
+        time.sleep(3)
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//li[@data-page="top"]'))).click()
         time.sleep(2)
 
-        return contract, contractAmt_total
+        return contract_type, isSQ
     except Exception as err:
         driver.save_screenshot('log/image/error/contract.png')
         slack.send_message('warning', '保持中の建玉情報の取得に失敗しました Error: ' + str(err))
