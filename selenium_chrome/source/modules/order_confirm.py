@@ -1,5 +1,4 @@
 import os
-import sys
 import time
 from dotenv import load_dotenv
 from selenium.webdriver.common.action_chains import ActionChains
