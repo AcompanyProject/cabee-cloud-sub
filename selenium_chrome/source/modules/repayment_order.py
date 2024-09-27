@@ -1,76 +1,57 @@
+import os
 import time
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-from log import slack
-from modules import order_pulldown, order_confirm
+from log import slack, firestore
+from modules import contract
 
-def operation_repayment_order(driver, purpose):
+def operation_repayment_order(driver, order_steps):
+    send_message_text = '<!here> 返済&新規注文をします。返済注文から開始中...' if order_steps == 'repayment_and_new_order' else '<!here> 返済注文します'
+    slack.send_message('notice', send_message_text)
+
+    # ホームからスピード注文ページに遷移
+    WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.btn-menu-fut-op-repayment'))).click()
+    time.sleep(3)
     try:
-        send_message_text = '<!here> 返済&新規注文をします。返済注文から開始中...' if purpose == 'repayment_and_new_order' else '<!here> 返済注文します'
-        slack.send_message('notice', send_message_text)
-
-        # ホームからスピード注文ページに遷移
-        WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.btn-menu-fut-op-speed-order'))).click()
-        time.sleep(3)
-
-        retry_count = 1
-        order_kind, order_kind2 = None, None
-        while retry_count < 5:
-            order_kind, order_kind2 = get_order_kind(driver, retry_count)
-            if order_kind is not None and order_kind2 is not None:
-                break
-            retry_count += 1
-
-        if order_kind is None and order_kind2 is None:
-            raise Exception('get_order_kind returned None after 4 attempts')
-
-        # 全数量選択
-        driver.find_element_by_class_name('select-position-btn').click()
-        time.sleep(1)
-
-        # 確定ボタン押下
-        buttons = driver.find_elements_by_class_name('confirm-btn')
-        buttons[-1].click()
-        time.sleep(3)
-
-        try:
-            order_confirm.operation_confirm(driver, order_kind, order_kind2, 'repayment_order')
-        except Exception as err:
-            driver.save_screenshot('log/image/error/repayment-order-contract-notfound.png')
-            slack.send_message('error', f'建玉を見つけられませんでした: {err}')
+        WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.repay-all-btn'))).click()
     except Exception as err:
-        driver.save_screenshot('log/image/error/repayment-order.png')
-        slack.send_message('error', '返済注文中にエラー Error: ' + str(err))
+        slack.send_message('error', '一括返済ボタン押下時にエラー: ' + str(err))
         raise
 
-def get_order_kind(driver, retry_count):
-    order_kind = None
-    order_kind2 = None
+    password_box = WebDriverWait(driver, 10).until(
+        EC.visibility_of_element_located((By.ID, 'future-option-position-password-box'))
+    )
+    key_input_field = password_box.find_element(By.CLASS_NAME, 'common-key-input-field')
+    key_input_field.click()
+    driver_actions = ActionChains(driver)
+    driver_actions.send_keys(os.environ.get("TRADE_PASS"))
+    driver_actions.perform()
 
-    order_pulldown.operation_pulldown(driver, retry_count)
-    driver.find_element_by_class_name('dealing-type-refund-futop').click() # 返済を選択
-    time.sleep(2)
-    driver.find_element_by_id('fut-op-speed-order-input-position-list-button').click() # 建玉指定ボタン押下
-    time.sleep(2)
+    # 注文確定
+    try:
+        WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.common-modal-cancel-all-btn'))).click()
+    except Exception as err:
+        slack.send_message('error', '一括返済するボタン押下時（注文確定時）にエラー: ' + str(err))
+        raise
 
-    # 建玉選択モーダル内の操作
-    if len(driver.find_elements_by_class_name('grid-body-empty')) >= 1:
-        # 買い建玉が存在しない
-        driver.find_element_by_css_selector('.switch.sell-toggle').click()
-        time.sleep(1)
+    time.sleep(3)
 
-        if len(driver.find_elements_by_class_name('grid-body-empty')) >= 1:
-            # 売り建玉が存在しない
-            WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.common-modal-close-btn.cancel-btn'))).click() # モーダルを閉じる
-            time.sleep(2)
-        else:
-            # 売り建玉が存在する
-            order_kind = 'buy-orders'
-            order_kind2 = '.order-label.buy'
+    # HOMEに戻る
+    driver.refresh()
+    time.sleep(5)
+
+    # 正しく注文されたか確認する
+    contract_type, isSQ, contract_total, repay_button_count = contract.operation_get_contract(driver)
+    slack.send_message('notice', '注文後の建玉確認 （建玉種類: ' + str(contract_type) + ', 建玉数: ' + str(contract_total) + '）')
+
+    # 返済注文後、返済ボタンが存在する場合はエラーを出力
+    if int(repay_button_count) > 0:
+        firestore.refresh_trade_time('repayment_order')
+        slack.send_message('error', '建玉がサイン通りになっていないため処理を中断します')
+        raise
     else:
-        # 買い建玉が存在する
-        order_kind = 'sell-orders'
-        order_kind2 = '.order-label.sell'
+        slack.send_message('notice', '正常に取引処理が完了しました')
 
-    return order_kind, order_kind2
+

@@ -36,8 +36,6 @@ def check_duplication_trade(trade_kind):
         now = datetime.now()
         can_trade = (now - trade_time) >= timedelta(minutes=4)
 
-        slack.send_message('notice', f'check_duplication_trade() trade_kind: {trade_kind}, trade_time: {trade_time}, now: {now}, can_trade: {can_trade}')
-
         return can_trade
     except Exception as err:
         slack.send_message('warning', 'check_duplication_trade Error: ' + str(err))
