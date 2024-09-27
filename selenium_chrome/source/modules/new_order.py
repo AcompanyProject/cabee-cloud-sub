@@ -6,7 +6,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from log import slack, firestore
-from modules import order_pulldown, order_confirm, contract
+from modules import order_pulldown, contract
 
 load_dotenv()
 
@@ -36,7 +36,7 @@ def operation_new_order(driver, is_buy_sign, sheet_num):
         driver_actions.send_keys(str(sheet_num))
         driver_actions.perform()
 
-        order_confirm.operation_confirm(driver, order_kind, order_kind2, 'new_order')
+        operation_confirm(driver, order_kind, order_kind2, 'new_order')
     except Exception as err:
         driver.save_screenshot('log/image/error/new-order.png')
         slack.send_message('error', '新規注文中にエラー Error: ' + str(err))
