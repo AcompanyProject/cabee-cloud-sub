@@ -31,24 +31,17 @@ def operation_get_deposit(driver):
         # 建玉枚数の決定
         sheet_num = 1 if int(deposit) < sheet_per_deposit else int(deposit) // sheet_per_deposit
 
-        # 先物評価損益の取得
-        # profit_loss = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID, 'powerInfoFutOpRealFutUnrealized'))).text
-        # profit_loss = int(profit_loss.translate(str.maketrans({',':'', '円':''})))
+        # 損益非常事態のエラーハンドリング
+        profit_loss = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID, 'powerInfoFutOpRealFutUnrealized'))).text
+        profit_loss = int(profit_loss.translate(str.maketrans({',':'', '円':''})))
+        profit_loss_percentage = (profit_loss/sheet_num)/sheet_per_deposit*100
 
-        # try:
-        #     profit_loss_percentage = (profit_loss/sheet_num)/sheet_per_deposit*100
-        # except ValueError:
-        #     slack.send_message('error', 'profit_loss_percentageの値が不正です: ' + str(profit_loss_percentage))
-        #     raise
-
-        # print("profit_loss_percentage: " + str(profit_loss_percentage))
-
-        # if profit_loss_percentage < -4:
-        #     # 4%以上の損失発生時に一応通知する
-        #     slack.send_message(
-        #         'warning',
-        #         '4%を超える損失が発生しています。15分以内に自動で損切りしなければ、手動で損切りしてください。'
-        #     )
+        if profit_loss_percentage < -4:
+            # 4%以上の損失発生時に一応通知する
+            slack.send_message(
+                'warning',
+                '4%を超える損失が発生しています。15分以内に自動で損切りしなければ手動で損切りしてください。'
+            )
 
         # HOMEに戻る
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//li[@data-page="top"]'))).click()
