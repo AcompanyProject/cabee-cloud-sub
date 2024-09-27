@@ -3,6 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from log import slack
+from api import cabee_signal
 
 def operation_get_deposit(driver):
     sheet_per_deposit = 750000 # いくらにつき1枚張りするか
@@ -27,6 +28,12 @@ def operation_get_deposit(driver):
         # 維持証拠金余力の取得
         deposit = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID, 'powerInfoFutOpFutOpMgnDepo'))).text
         deposit = deposit.translate(str.maketrans({',':'', '円':''}))
+
+        # 必要証拠金以上の余力があるかチェック
+        required_margin = (cabee_signal.get_cabee_signal())['required_margin']
+        if deposit < int(required_margin):
+            slack.send_message('error', '先物OP証拠金余力が必要証拠金（{required_margin}）より低いため、証拠金を追加してください')
+            raise
 
         # 建玉枚数の決定
         sheet_num = 1 if int(deposit) < sheet_per_deposit else int(deposit) // sheet_per_deposit
