@@ -5,7 +5,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from log import slack, firestore
-from modules import contract
+from modules import contract, order_reference
 
 def operation_repayment_order(driver, order_steps):
     send_message_text = '<!here> 返済&新規注文をします。返済注文から開始中...' if order_steps == 'repayment_and_new_order' else '<!here> 返済注文します'
@@ -50,6 +50,13 @@ def operation_repayment_order(driver, order_steps):
     if int(repay_button_count) > 0:
         firestore.refresh_trade_time('repayment_order')
         slack.send_message('error', '建玉がサイン通りになっていないため処理を中断します')
+        
+        # リロードするとHOMEに戻り、pulldownに設定された値も戻される
+        driver.refresh()
+        time.sleep(5)
+
+        # 注文照会のチェック
+        order_reference.operation_check_circuit_breaker(driver)
         raise
     else:
         slack.send_message('notice', '正常に取引処理が完了しました')
