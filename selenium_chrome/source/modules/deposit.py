@@ -31,8 +31,9 @@ def operation_get_deposit(driver):
 
         # 必要証拠金以上の余力があるかチェック
         required_margin = (cabee_signal.get_cabee_signal())['required_margin']
-        if deposit < int(required_margin):
-            slack.send_message('error', '先物OP証拠金余力が必要証拠金（{required_margin}）より低いため、証拠金を追加してください')
+
+        if int(deposit) < int(required_margin):
+            slack.send_message('error', '先物OP証拠金余力が必要証拠金（' + str(required_margin) + '円）より低いため、証拠金を追加してください')
             raise
 
         # 建玉枚数の決定
