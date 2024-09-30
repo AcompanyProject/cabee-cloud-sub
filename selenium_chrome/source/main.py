@@ -72,3 +72,4 @@ def response(request, error = None):
         return (json.dumps({"response": "ok"}), 200, headers)
     else:
         return (json.dumps({"response": error}), 200, headers)
+
