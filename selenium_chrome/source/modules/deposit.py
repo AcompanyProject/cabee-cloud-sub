@@ -26,13 +26,13 @@ def operation_get_deposit(driver):
         time.sleep(2)
 
         # 維持証拠金余力の取得
-        deposit = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID, 'powerInfoFutOpFutOpMgnDepo'))).text
+        deposit = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID, 'powerInfoFutOpRealMgnDepoCapacity'))).text
         deposit = deposit.translate(str.maketrans({',':'', '円':''}))
 
         # 必要証拠金以上の余力があるかチェック
         required_margin = (cabee_signal.get_cabee_signal())['required_margin']
         if required_margin > 0 and int(deposit) < int(required_margin):
-            slack.send_message('error', '先物OP証拠金余力が必要証拠金（' + str(required_margin) + '円）より低いため、証拠金を追加してください')
+            slack.send_message('error', '先物OP証拠金余力が必要証拠金（' + str(required_margin) + '円）を下回る可能性があります。新規注文の失敗リスクがあるため、証拠金を追加してください。')
             raise
 
         # 建玉枚数の決定
