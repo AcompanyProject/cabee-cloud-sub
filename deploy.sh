@@ -19,7 +19,7 @@ rm tensorflow2.0/pack.zip
 cd selenium_chrome/source
 
 # 必要なPythonパッケージのインストール
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 
 # .env ファイルの作成
 echo "USER_ID=${USER_ID}" > .env
