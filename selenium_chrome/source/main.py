@@ -49,7 +49,7 @@ def trader(request):
     signal_res = cabee_signal.get_cabee_signal() # cabee signal api情報取得
 
     if not check_trade_condition.is_trader_run_condition(signal_res):
-        return response(request, "取引時間外のため処理を中断しました")
+        return response(request, "取引時間条件を満たしていないため処理を中断しました")
 
     login.operation_login(driver) # ログイン
 
