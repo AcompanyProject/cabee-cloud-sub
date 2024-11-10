@@ -3,9 +3,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from log import slack
-from api import cabee_signal
 
-def operation_get_deposit(driver):
+def operation_get_deposit(driver, signal_res):
     sheet_per_deposit = 750000 # いくらにつき1枚張りするか
 
     # 余力情報ページに遷移
@@ -30,7 +29,7 @@ def operation_get_deposit(driver):
         deposit = deposit.translate(str.maketrans({',':'', '円':''}))
 
         # 必要証拠金以上の余力があるかチェック
-        required_margin = (cabee_signal.get_cabee_signal())['required_margin']
+        required_margin = signal_res['required_margin']
         if required_margin > 0 and int(deposit) < int(required_margin):
             slack.send_message('error', '先物OP証拠金余力が必要証拠金（' + str(required_margin) + '円）を下回る可能性があります。新規注文の失敗リスクがあるため、証拠金を追加してください。')
             raise

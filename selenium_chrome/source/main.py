@@ -3,6 +3,7 @@ import random
 import json
 from selenium import webdriver
 from modules import login, deposit, contract, order_admin
+from api import cabee_signal
 
 chrome_options = webdriver.ChromeOptions()
 user_agent = [
@@ -45,19 +46,20 @@ driver = webdriver.Chrome(os.getcwd() + "/chromedriver", options=chrome_options)
 driver.command_executor._commands["send_command"] = ('POST', '/session/$sessionId/chromium/send_command')
 
 def trader(request):
+    signal_res = cabee_signal.get_cabee_signal() # api情報取得
     login.operation_login(driver) # ログイン
 
     #### 本番 ####
-    sheet_num = deposit.operation_get_deposit(driver) # 建玉枚数計算
+    sheet_num = deposit.operation_get_deposit(driver, signal_res) # 建玉枚数計算
     contract_type, isSQ, contract_total, repay_button_count = contract.operation_get_contract(driver) # 建玉状況の取得
-    order_admin.operation_check_sign(driver, contract_type, sheet_num, isSQ) # 注文操作
+    order_admin.operation_check_sign(driver, contract_type, sheet_num, isSQ, signal_res) # 注文操作
     ################
 
     #### テスト ####
     # sheet_num = 1
     # contract_type = "sell"
     # isSQ = False
-    # order_admin.operation_check_sign(driver, contract_type, sheet_num, isSQ) # 注文操作
+    # order_admin.operation_check_sign(driver, contract_type, sheet_num, isSQ, signal_res) # 注文操作
     ################
 
     return response(request)
@@ -82,4 +84,3 @@ def response(request, error = None):
         return (json.dumps({"response": "ok"}), 200, headers)
     else:
         return (json.dumps({"response": error}), 200, headers)
-

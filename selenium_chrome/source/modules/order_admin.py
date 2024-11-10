@@ -1,9 +1,8 @@
 import time
 from log import slack
 from modules import new_order, repayment_order
-from api import cabee_signal
 
-def operation_check_sign(driver, contract_type, sheet_num, isSQ):
+def operation_check_sign(driver, contract_type, sheet_num, isSQ, signal_res):
     # 各ケースごとの操作方法をまとめた辞書
     # 現在の建区分, サイン, SQフラグ => 売買操作の種類, 取引区分
     contract_sign_map = {
@@ -40,7 +39,7 @@ def operation_check_sign(driver, contract_type, sheet_num, isSQ):
     for reload_count in range(15):
         #### 本番 ####
         # 複数回連続でサインを取得（なるべく最速で売買を開始したいので）
-        signal_json = (cabee_signal.get_cabee_signal())['sign']
+        signal_json = signal_res['sign']
         ################
 
         #### テスト ####
