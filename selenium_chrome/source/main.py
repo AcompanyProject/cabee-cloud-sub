@@ -2,7 +2,7 @@ import os
 import random
 import json
 from selenium import webdriver
-from modules import login, deposit, contract, order_admin
+from modules import login, deposit, contract, order_admin, check_trade_condition
 from api import cabee_signal
 
 chrome_options = webdriver.ChromeOptions()
@@ -46,7 +46,11 @@ driver = webdriver.Chrome(os.getcwd() + "/chromedriver", options=chrome_options)
 driver.command_executor._commands["send_command"] = ('POST', '/session/$sessionId/chromium/send_command')
 
 def trader(request):
-    signal_res = cabee_signal.get_cabee_signal() # api情報取得
+    signal_res = cabee_signal.get_cabee_signal() # cabee signal api情報取得
+
+    if not check_trade_condition.is_trader_run_condition(signal_res):
+        return response(request, "取引時間外のため処理を中断しました")
+
     login.operation_login(driver) # ログイン
 
     #### 本番 ####
