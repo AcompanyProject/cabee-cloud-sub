@@ -1,4 +1,3 @@
-
 from log import slack
 
 def is_trader_run_condition(signal_res):
@@ -8,6 +7,4 @@ def is_trader_run_condition(signal_res):
     elif signal_res["is_graph_updating"] is True:
         slack.send_message('notice', 'グラフ更新作業中のため一時停止中')
         return False
-
-    slack.send_message('notice', '取引時間内')
     return True
