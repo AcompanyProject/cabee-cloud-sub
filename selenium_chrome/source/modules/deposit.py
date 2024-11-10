@@ -3,9 +3,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from log import slack
-from api import cabee_signal
 
-def operation_get_deposit(driver):
+def operation_get_deposit(driver, signal_res):
     sheet_per_deposit = 750000 # いくらにつき1枚張りするか
 
     # 余力情報ページに遷移
@@ -30,7 +29,7 @@ def operation_get_deposit(driver):
         deposit = deposit.translate(str.maketrans({',':'', '円':''}))
 
         # 必要証拠金以上の余力があるかチェック
-        required_margin = (cabee_signal.get_cabee_signal())['required_margin']
+        required_margin = signal_res['required_margin']
         if required_margin > 0 and int(deposit) < int(required_margin):
             slack.send_message('error', '先物OP証拠金余力が必要証拠金（' + str(required_margin) + '円）を下回る可能性があります。新規注文の失敗リスクがあるため、証拠金を追加してください。')
             raise
@@ -43,11 +42,11 @@ def operation_get_deposit(driver):
         profit_loss = int(profit_loss.translate(str.maketrans({',':'', '円':''})))
         profit_loss_percentage = (profit_loss/sheet_num)/sheet_per_deposit*100
 
-        if profit_loss_percentage < -4:
+        if profit_loss_percentage < -4 and signal_res["trade_type"] == "daytime":
             # 4%以上の損失発生時に一応通知する
             slack.send_message(
                 'warning',
-                '4%を超える損失が発生しています。15分以内に自動で損切りしなければ手動で損切りしてください。'
+                '4%以上の損失が発生中。15分以内に自動で損切りしなければ手動で損切りしてください。'
             )
 
         # HOMEに戻る
