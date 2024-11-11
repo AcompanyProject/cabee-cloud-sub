@@ -6,6 +6,7 @@ USER_PASS=$2
 TRADE_PASS=$3
 MY_PROJECT_ID=$4
 WEB_HOOK_URL=$5
+WEB_HOOK_URL_NOT_FOUND=$6
 
 # 必要なファイルの解凍
 unzip selenium_chrome/source/headless-chromium.zip -d selenium_chrome/source
@@ -27,6 +28,9 @@ echo "USER_PASS=${USER_PASS}" >> .env
 echo "TRADE_PASS=${TRADE_PASS}" >> .env
 echo "MY_PROJECT_ID=${MY_PROJECT_ID}" >> .env
 echo "WEB_HOOK_URL=${WEB_HOOK_URL}" >> .env
+if [ ! -z "$WEB_HOOK_URL_NOT_FOUND" ]; then
+    echo "WEB_HOOK_URL_NOT_FOUND=${WEB_HOOK_URL_NOT_FOUND}" >> .env
+fi
 
 # Firestoreの初期設定
 python3 log/create_firestore_documents.py
@@ -45,10 +49,7 @@ echo "Cloud Function deployed successfully."
 # Cloud Schedulerのジョブを作成
 declare -A SCHEDULES
 SCHEDULES=(
-  ["trader-start"]="50,51,52,53,54,55 8 * * *"
-  ["trader"]="*/1 9-14 * * *"
-  ["trader-end"]="0,1,2,3,4,5,10,11,12,13,14 15 * * *"
-  ["trader-sq"]="30 16 * * *"
+  ["trader"]="*/1 * * * *"
 )
 
 echo "Creating Cloud Scheduler jobs..."
