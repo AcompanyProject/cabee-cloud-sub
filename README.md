@@ -10,7 +10,7 @@ ruff check ./log/* ./modules/* ./main.py
 chmod +x deploy.sh;
 $ ./deploy.sh "ログインID" "ログインPASS" "取引暗礁番号" "project_id" "web_hook_url"
 または
-$ ./deploy.sh "ログインID" "ログインPASS" "取引暗礁番号" "project_id" "web_hook_url" web_hook_url_for_notfound"
+$ ./deploy.sh "ログインID" "ログインPASS" "取引暗礁番号" "project_id" "web_hook_url" "web_hook_url_for_notfound"
 
 
 途中で「Allow unauthenticated invocations of new function [trade_executor]? (y/N)? 」と表示されたら、
