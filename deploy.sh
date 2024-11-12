@@ -40,7 +40,7 @@ gcloud config set project ${MY_PROJECT_ID}
 
 # Google Cloud Functionのデプロイ
 echo "Deploying Cloud Function..."
-if ! gcloud functions deploy trader --runtime python312 --trigger-http --region asia-northeast1 --memory 512MB --timeout 540s --docker-registry=artifact-registry; then
+if ! gcloud functions deploy trader --runtime python312 --trigger-http --region asia-northeast1 --memory 512MB --timeout 540s; then
   echo "Deployment failed."
   exit 1
 fi
