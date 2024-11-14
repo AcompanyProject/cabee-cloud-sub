@@ -53,17 +53,17 @@ def operation_check_sign(driver, contract_type, sheet_num, isSQ):
 
         order_steps, is_buy_sign = contract_sign_map.get((contract_type, signal_json, isSQ), (None, None))
 
-        # if order_steps == 'new_order':
-        #     new_order.operation_new_order(driver, is_buy_sign, sheet_num)
-        # elif order_steps == 'repayment_order':
-        #     repayment_order.operation_repayment_order(driver, order_steps)
-        # elif order_steps == 'repayment_and_new_order':
-        #     repayment_order.operation_repayment_order(driver, order_steps)
-        #     new_order.operation_new_order(driver, is_buy_sign, sheet_num)
-        # else:
-        #     print("なにもしない")
+        if order_steps == 'new_order':
+            new_order.operation_new_order(driver, is_buy_sign, sheet_num)
+        elif order_steps == 'repayment_order':
+            repayment_order.operation_repayment_order(driver, order_steps)
+        elif order_steps == 'repayment_and_new_order':
+            repayment_order.operation_repayment_order(driver, order_steps)
+            new_order.operation_new_order(driver, is_buy_sign, sheet_num)
+        else:
+            print("なにもしない")
 
-        # if order_steps is not None:
-        #     break
+        if order_steps is not None:
+            break
 
         time.sleep(2)
