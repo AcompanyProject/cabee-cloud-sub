@@ -37,7 +37,7 @@ def operation_check_sign(driver, contract_type, sheet_num, isSQ):
     if isSQ:
         slack.send_message('notice', "本日がSQ日であることを検知しました")
 
-    for reload_count in range(15):
+    for reload_count in range(500):
         #### 本番 ####
         # 複数回連続でサインを取得（なるべく最速で売買を開始したいので）
         signal_json = (cabee_signal.get_cabee_signal())['sign']
@@ -48,7 +48,7 @@ def operation_check_sign(driver, contract_type, sheet_num, isSQ):
         ################
 
         if reload_count == 0:
-            slack.send_message('notice', f'sign: {signal_json}, sheet_num: {sheet_num}, contract_type: {contract_type}')
+            slack.send_message('notice', f'Cabeeサイン: {signal_json}, 建玉枚数: {sheet_num}, 保持中の建玉種別: {contract_type}')
 
         order_steps, is_buy_sign = contract_sign_map.get((contract_type, signal_json, isSQ), (None, None))
 
