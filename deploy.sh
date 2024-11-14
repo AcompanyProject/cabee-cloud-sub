@@ -49,7 +49,7 @@ echo "Cloud Function deployed successfully."
 # Cloud Schedulerのジョブを作成
 declare -A SCHEDULES
 SCHEDULES=(
-  ["trader"]="*/1 * * * *"
+  ["trader"]="*/5 * * * *"
 )
 
 echo "Creating Cloud Scheduler jobs..."
