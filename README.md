@@ -21,6 +21,17 @@ $ ./deploy.sh "ログインID" "ログインPASS" "取引暗礁番号" "project_
 main.pyの階層で実行
 ```
 gcloud functions deploy trader --runtime python312 --trigger-http --region asia-northeast1 --memory 512MB --timeout 540s
+
+# 並列実行
+gcloud functions deploy trader \
+  --runtime python312 \
+  --trigger-http \
+  --region asia-northeast1 \
+  --memory 512MB \
+  --timeout 1000s \
+  --min-instances 1 \
+  --max-instances 2 \
+  --concurrency 1 \
 ```
 
 ## その他
