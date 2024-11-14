@@ -38,7 +38,7 @@ def operation_check_sign(driver, contract_type, sheet_num, isSQ):
         slack.send_message('notice', "本日がSQ日であることを検知しました")
 
     # 大体5分に一回 slack 通知が行われる
-    for reload_count in range(115):
+    for reload_count in range(300):
         #### 本番 ####
         # 複数回連続でサインを取得（なるべく最速で売買を開始したいので）
         signal_json = (cabee_signal.get_cabee_signal())['sign']
